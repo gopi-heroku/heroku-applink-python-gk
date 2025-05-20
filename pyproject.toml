@@ -1,6 +1,6 @@
 [project]
-name = "heroku_applink"
-version = "0.1.0"
+name = "bjones_test_applink"
+version = "0.0.1"
 description = "Simple SDK for Heroku AppLink and Salesforce development"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -13,14 +13,19 @@ dependencies = [
 docs = ["pdoc3"]
 
 [tool.setuptools]
-packages = ["heroku_applink", "heroku_applink.data_api"]
+packages = [
+    "heroku_applink",
+    "heroku_applink.data_api",
+    "heroku_applink.addons",
+    "heroku_applink.utils"
+]
 
 [project.urls]
-Homepage = "https://github.com/heroku/heroku-applink-python"
-Documentation = "https://github.com/heroku/heroku-applink-python"
-Repository = "https://github.com/heroku/heroku-applink-python.git"
-"Bug Tracker" = "https://github.com/heroku/heroku-applink-python/issues"
-Changelog = "https://github.com/heroku/heroku-applink-python/CHANGELOG.md"
+Homepage = "https://github.com/brittanyrjones/heroku-applink-python"
+Documentation = "https://github.com/brittanyrjones/heroku-applink-python"
+Repository = "https://github.com/brittanyrjones/heroku-applink-python.git"
+"Bug Tracker" = "https://github.com/brittanyrjones/heroku-applink-python/issues"
+Changelog = "https://github.com/brittanyrjones/heroku-applink-python/CHANGELOG.md"
 
 
 [project.optional-dependencies]
@@ -41,7 +46,7 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "--cov=heroku_applink.data_api --cov-report=term-missing -v"
+addopts = "--cov=heroku_applink --cov-report=term-missing -v"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
