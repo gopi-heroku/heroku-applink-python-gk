@@ -1,5 +1,5 @@
 [project]
-name = "heroku_applink"
+name = "bjones_test_applink"
 version = "0.1.0"
 description = "Simple SDK for Heroku AppLink and Salesforce development"
 readme = "README.md"
@@ -21,11 +21,11 @@ packages = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/heroku/heroku-applink-python"
-Documentation = "https://github.com/heroku/heroku-applink-python"
-Repository = "https://github.com/heroku/heroku-applink-python.git"
-"Bug Tracker" = "https://github.com/heroku/heroku-applink-python/issues"
-Changelog = "https://github.com/heroku/heroku-applink-python/CHANGELOG.md"
+Homepage = "https://github.com/brittanyrjones/heroku-applink-python"
+Documentation = "https://github.com/brittanyrjones/heroku-applink-python"
+Repository = "https://github.com/brittanyrjones/heroku-applink-python.git"
+"Bug Tracker" = "https://github.com/brittanyrjones/heroku-applink-python/issues"
+Changelog = "https://github.com/brittanyrjones/heroku-applink-python/CHANGELOG.md"
 
 
 [project.optional-dependencies]
