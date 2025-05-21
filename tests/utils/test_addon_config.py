@@ -21,32 +21,32 @@ def setup_integration_env(monkeypatch):
     """Setup environment variables simulating multiple attachments."""
     base_url = "https://heroku-integration.heroku.com/addons/c694c5b3-7e07-4eb1-bb76-caf106a25bb7"
     token = "integration-token"
-    
+
     # Direct integration attachment
     monkeypatch.setenv('HEROKU_INTEGRATION_API_URL', base_url)
     monkeypatch.setenv('HEROKU_INTEGRATION_TOKEN', token)
-    
+
     # Default HEROKU_APPLINK attachment
     monkeypatch.setenv('HEROKU_APPLINK_API_URL', base_url)
     monkeypatch.setenv('HEROKU_APPLINK_TOKEN', token)
-    
+
     # Color-based attachment
     monkeypatch.setenv('HEROKU_APPLINK_PURPLE_API_URL', base_url)
     monkeypatch.setenv('HEROKU_APPLINK_PURPLE_TOKEN', token)
-    
+
     # Org name
     monkeypatch.setenv('SALESFORCE_ORG_NAME', 'applink-org')
 
 def test_resolve_by_direct_integration(monkeypatch):
     setup_integration_env(monkeypatch)
-    
+
     config = resolve_addon_config_by_attachment_or_color('HEROKU_INTEGRATION')
     assert config.api_url == 'https://heroku-integration.heroku.com/addons/c694c5b3-7e07-4eb1-bb76-caf106a25bb7'
     assert config.token == 'integration-token'
 
 def test_resolve_by_default_attachment(monkeypatch):
     setup_integration_env(monkeypatch)
-    
+
     config = resolve_addon_config_by_attachment_or_color('HEROKU_APPLINK')
     assert config.api_url == 'https://heroku-integration.heroku.com/addons/c694c5b3-7e07-4eb1-bb76-caf106a25bb7'
     assert config.token == 'integration-token'
@@ -54,28 +54,28 @@ def test_resolve_by_default_attachment(monkeypatch):
 def test_resolve_by_url(monkeypatch):
     setup_integration_env(monkeypatch)
     test_url = 'https://heroku-integration.heroku.com/addons/c694c5b3-7e07-4eb1-bb76-caf106a25bb7'
-    
+
     config = resolve_addon_config_by_url(test_url)
     assert config.api_url == test_url
     assert config.token == 'integration-token'
 
 def test_resolve_by_color(monkeypatch):
     setup_integration_env(monkeypatch)
-    
+
     config = resolve_addon_config_by_attachment_or_color('purple')
     assert config.api_url == 'https://heroku-integration.heroku.com/addons/c694c5b3-7e07-4eb1-bb76-caf106a25bb7'
     assert config.token == 'integration-token'
 
 def test_resolve_by_nonexistent_attachment(monkeypatch):
     setup_integration_env(monkeypatch)
-    
+
     with pytest.raises(ValueError) as exc_info:
         resolve_addon_config_by_attachment_or_color("APPLINKN'T")
     assert "Heroku Applink config not found under attachment or color APPLINKN'T" in str(exc_info.value)
 
 def test_resolve_by_nonexistent_color(monkeypatch):
     setup_integration_env(monkeypatch)
-    
+
     with pytest.raises(ValueError) as exc_info:
         resolve_addon_config_by_attachment_or_color("purplee")
     assert "Heroku Applink config not found under attachment or color purplee" in str(exc_info.value)
@@ -83,7 +83,7 @@ def test_resolve_by_nonexistent_color(monkeypatch):
 def test_resolve_by_custom_addon_name_failure(monkeypatch):
     setup_integration_env(monkeypatch)
     monkeypatch.setenv('HEROKU_APPLINK_ADDON_NAME', 'FAKE_HEROKU_APPLINK')
-    
+
     with pytest.raises(ValueError) as exc_info:
         resolve_addon_config_by_attachment_or_color('purple')
     assert "Heroku Applink config not found under attachment or color purple" in str(exc_info.value)
@@ -91,7 +91,7 @@ def test_resolve_by_custom_addon_name_failure(monkeypatch):
 def test_resolve_by_custom_addon_name_success(monkeypatch):
     setup_integration_env(monkeypatch)
     monkeypatch.setenv('HEROKU_APPLINK_ADDON_NAME', 'HEROKU_APPLINK')
-    
+
     config = resolve_addon_config_by_attachment_or_color('purple')
     assert config.api_url == 'https://heroku-integration.heroku.com/addons/c694c5b3-7e07-4eb1-bb76-caf106a25bb7'
     assert config.token == 'integration-token'
@@ -129,7 +129,7 @@ def test_resolve_by_nonexistent_attachment_with_fallback(monkeypatch):
     # First, ensure direct attachment vars don't exist
     monkeypatch.delenv('MYADDON_API_URL', raising=False)
     monkeypatch.delenv('MYADDON_TOKEN', raising=False)
-    
+
     # Set the fallback vars
     monkeypatch.setenv('HEROKU_APPLINK_MYADDON_API_URL', 'https://api.example.com')
     monkeypatch.setenv('HEROKU_APPLINK_MYADDON_TOKEN', 'fallback-token')
