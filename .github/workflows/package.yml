@@ -37,7 +37,7 @@ jobs:
         run: uv build
 
       - name: Release to Test PyPI
-        run: uv publish dist/* -- --repository-url https://test.pypi.org/legacy/
+        run: uv publish dist/* --index testpypi
         if: startsWith(github.ref, 'refs/tags/')
 
   test:
