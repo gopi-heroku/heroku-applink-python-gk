@@ -1,6 +1,6 @@
 [project]
-name = "heroku_applink"
-version = "0.1.0"
+name = "bjones_test_applink"
+version = "0.0.1"
 description = "Simple SDK for Heroku AppLink and Salesforce development"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -21,11 +21,11 @@ packages = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/heroku/heroku-applink-python"
-Documentation = "https://github.com/heroku/heroku-applink-python"
-Repository = "https://github.com/heroku/heroku-applink-python.git"
-"Bug Tracker" = "https://github.com/heroku/heroku-applink-python/issues"
-Changelog = "https://github.com/heroku/heroku-applink-python/CHANGELOG.md"
+Homepage = "https://github.com/brittanyrjones/heroku-applink-python"
+Documentation = "https://github.com/brittanyrjones/heroku-applink-python"
+Repository = "https://github.com/brittanyrjones/heroku-applink-python.git"
+"Bug Tracker" = "https://github.com/brittanyrjones/heroku-applink-python/issues"
+Changelog = "https://github.com/brittanyrjones/heroku-applink-python/CHANGELOG.md"
 
 
 [project.optional-dependencies]
@@ -37,6 +37,17 @@ test = [
     "ruff>=0.1.0",
     "coverage>=7.0.0"
 ]
+dev = [
+    "tox>=4.0.0",
+    "tox-uv>=0.1.0",
+    "ruff>=0.1.0"
+]
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
