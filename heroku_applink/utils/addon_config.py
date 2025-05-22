@@ -1,72 +1,75 @@
 import os
+from functools import lru_cache
 
-class AddonConfig:
-    """Configuration for a Heroku AppLink addon."""
-    def __init__(self, api_url: str, token: str):
-        self.api_url = api_url
-        self.token = token
-
-def resolve_addon_config_by_attachment_or_color(attachment_or_color: str) -> AddonConfig:
-    """Get stored Salesforce or Data Cloud org user credentials for given developer name or alias.
-
-    Args:
-        attachment_or_color: Either an attachment name (e.g. "HEROKU_APPLINK"),
-                           color (e.g. "purple" in "HEROKU_APPLINK_PURPLE")
-
-    Returns:
-        AddonConfig: The addon configuration
-
-    Raises:
-        ValueError: If the configuration is not found
+def _is_color(name: str) -> bool:
     """
-    addon = os.getenv("HEROKU_APPLINK_ADDON_NAME", "HEROKU_APPLINK")
+    Check if the given name is a color.
+    This is a simple check that could be expanded if needed.
+    """
+    common_colors = {
+        'RED', 'GREEN', 'BLUE', 'YELLOW', 'PURPLE', 'ORANGE', 'PINK',
+        'BROWN', 'BLACK', 'WHITE', 'GRAY', 'GREY', 'CYAN', 'MAGENTA'
+    }
+    return name.upper() in common_colors
 
-    # Lookup by attachment
-    api_url = os.getenv(f"{attachment_or_color.upper()}_API_URL")
-    token = os.getenv(f"{attachment_or_color.upper()}_TOKEN")
+@lru_cache(maxsize=None)
+def resolve_addon_config_by_attachment_or_color(attachment_or_color: str) -> dict[str, str]:
+    """
+    For colors (like 'purple'):
+    First try:
+      HEROKU_APPLINK_{COLOR}_API_URL / _TOKEN
+    Then fallback to:
+      {COLOR}_API_URL / _TOKEN
 
-    # If not found, lookup by color using HEROKU_APPLINK prefix for attachment name
+    For non-color attachments:
+    First try:
+      {ATTACHMENT}_API_URL / _TOKEN
+    Then fallback to:
+      HEROKU_APPLINK_{ATTACHMENT}_API_URL / _TOKEN
+    """
+    addon_prefix = os.getenv("HEROKU_APPLINK_ADDON_NAME", "HEROKU_APPLINK")
+    key = attachment_or_color.upper()
+
+    if _is_color(key):
+        # For colors, try HEROKU_APPLINK_{COLOR}_* first
+        api_url = os.getenv(f"{addon_prefix}_{key}_API_URL")
+        token = os.getenv(f"{addon_prefix}_{key}_TOKEN")
+
+        if not api_url or not token:
+            # Fallback to {COLOR}_*
+            api_url = os.getenv(f"{key}_API_URL")
+            token = os.getenv(f"{key}_TOKEN")
+    else:
+        # For non-colors, try {ATTACHMENT}_* first
+        api_url = os.getenv(f"{key}_API_URL")
+        token = os.getenv(f"{key}_TOKEN")
+
+        if not api_url or not token:
+            # Fallback to HEROKU_APPLINK_{ATTACHMENT}_*
+            api_url = os.getenv(f"{addon_prefix}_{key}_API_URL")
+            token = os.getenv(f"{addon_prefix}_{key}_TOKEN")
+
     if not api_url or not token:
-        api_url = os.getenv(f"{addon}_{attachment_or_color.upper()}_API_URL")
-        token = os.getenv(f"{addon}_{attachment_or_color.upper()}_TOKEN")
-
-    if not api_url or not token:
-        raise ValueError(
-            f"Heroku Applink config not found under attachment or color {attachment_or_color}"
+        raise EnvironmentError(
+            f"Heroku Applink config not found for '{attachment_or_color}'. "
+            f"Looked for {key}_API_URL / {key}_TOKEN and "
+            f"{addon_prefix}_{key}_API_URL / {addon_prefix}_{key}_TOKEN"
         )
 
-    return AddonConfig(api_url, token)
+    return {"api_url": api_url, "token": token}
 
-def resolve_addon_config_by_url(url: str) -> AddonConfig:
-    """Get stored Salesforce or Data Cloud org user credentials for given API URL.
-
-    Args:
-        url: The API URL to look up
-
-    Returns:
-        AddonConfig: The addon configuration
-
-    Raises:
-        ValueError: If the configuration is not found
+@lru_cache(maxsize=None)
+def resolve_addon_config_by_url(url: str) -> dict[str, str]:
     """
-    # Find the environment variable ending with _API_URL that matches the given URL
-    env_vars = dict(os.environ)
-    matching_api_url_entry = next(
-        ((key, value) for key, value in env_vars.items()
-         if key.endswith("_API_URL") and value.lower() == url.lower()),
-        None
-    )
+    Match an env var ending in _API_URL to the given URL, then
+    pull the corresponding _TOKEN.
+    """
+    for var, val in os.environ.items():
+        if var.endswith("_API_URL") and val.lower() == url.lower():
+            prefix = var[: -len("_API_URL")]
+            token = os.getenv(f"{prefix}_TOKEN")
+            if not token:
+                raise EnvironmentError(f"Missing token for API URL: {url}")
+            return {"api_url": val, "token": token}
 
-    if not matching_api_url_entry:
-        raise ValueError(f"Heroku Applink config not found for API URL: {url}")
-
-    # Extract the prefix from the API_URL environment variable name
-    env_var_name = matching_api_url_entry[0]
-    prefix = env_var_name[:-len("_API_URL")]  # Remove '_API_URL' suffix
-
-    # Look for corresponding token
-    token = os.getenv(f"{prefix}_TOKEN")
-    if not token:
-        raise ValueError(f"Heroku Applink token not found for API URL: {url}")
-
-    return AddonConfig(matching_api_url_entry[1], token)
+    raise EnvironmentError(f"Heroku Applink config not found for API URL: {url}")
